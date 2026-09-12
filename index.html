@@ -1,0 +1,340 @@
+<!DOCTYPE html><html lang="ko"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>天溟帝國 · 천명제국</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#e9dcbe;--paper-2:#e2d3af;--paper-3:#d8c69e;
+  --ink:#2b241d;--ink-2:#5b5040;--ink-3:#877a63;
+  --cinnabar:#a5332a;--cinnabar-d:#7f2820;--gold:#9a7b32;
+  --line:rgba(43,36,29,.30);--line-soft:rgba(43,36,29,.16);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:"Gowun Batang",serif;color:var(--ink);line-height:1.9;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;background:var(--paper);
+  padding-bottom:calc(78px + env(safe-area-inset-bottom));text-align:center}
+.paper-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(60% 45% at 18% 12%,rgba(255,250,235,.5),transparent 60%),
+    radial-gradient(50% 40% at 88% 85%,rgba(120,95,55,.14),transparent 60%),
+    radial-gradient(40% 30% at 72% 30%,rgba(120,95,55,.08),transparent 55%),var(--paper)}
+.paper-bg::after{content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.26'/%3E%3C/svg%3E")}
+
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 18px;padding-top:calc(12px + env(safe-area-inset-top));
+  background:linear-gradient(180deg,rgba(233,220,190,.96),rgba(233,220,190,.55) 70%,transparent);backdrop-filter:blur(3px)}
+.topbar .mark{font-family:"Noto Serif KR";font-weight:700;font-size:16px;letter-spacing:.28em}
+.topbar .mark small{display:block;font-weight:400;letter-spacing:.2em;font-size:9px;color:var(--ink-3);margin-top:1px}
+.bgm-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper-2);
+  color:var(--cinnabar);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.25s}
+.bgm-btn.playing{border-color:var(--cinnabar);box-shadow:0 0 0 3px rgba(165,51,42,.14)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bgm-btn.playing span{display:inline-block;animation:spin 4s linear infinite}
+
+main{max-width:720px;margin:0 auto;padding:0 22px}
+.panel{display:none}.panel.active{display:block}
+
+/* 붓글씨 write-on */
+.wc{display:inline-block;white-space:pre;opacity:0;filter:blur(5px);transform:translateY(5px) scale(1.04);
+  transition:opacity .55s ease,filter .55s ease,transform .55s ease}
+.panel.playing .wc{opacity:1;filter:blur(0);transform:none}
+@media (prefers-reduced-motion:reduce){.wc{opacity:1;filter:none;transform:none;transition:none}}
+.writeon{display:block}
+
+/* 제목 */
+.brush-title{font-family:"Nanum Brush Script",cursive;color:var(--ink);font-size:clamp(46px,15vw,76px);line-height:1}
+.sec-head{margin:24px 0 4px}
+.sec-head .han{font-family:"Nanum Brush Script",cursive;font-size:56px;color:var(--cinnabar);line-height:.9;display:block}
+.sec-head h2{font-family:"Noto Serif KR";font-weight:700;font-size:18px;letter-spacing:.34em;margin-top:2px}
+.rule{width:56px;height:2px;background:var(--gold);margin:14px auto 20px;opacity:.7;position:relative}
+.rule::before,.rule::after{content:"";position:absolute;top:50%;width:5px;height:5px;background:var(--cinnabar);border-radius:50%;transform:translateY(-50%)}
+.rule::before{left:-11px}.rule::after{right:-11px}
+
+/* 상소문 본문(짧게 끊긴 행) */
+.scroll-text{font-family:"Gowun Batang";font-size:16px;line-height:2.35;color:var(--ink);margin:8px auto}
+.scroll-text .line{display:block}
+.scroll-text .em{color:var(--cinnabar);font-weight:700}
+.scroll-text .big{font-family:"Noto Serif KR";font-weight:700;font-size:19px}
+
+/* 도성 */
+.dosim{margin:18px auto 4px;border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  box-shadow:0 8px 24px rgba(43,36,29,.2);position:relative}
+.dosim img{width:100%;display:block}
+.dosim .cap{position:absolute;right:12px;bottom:9px;font-family:"Noto Serif KR";font-weight:700;
+  font-size:11px;letter-spacing:.2em;color:#f3ead4;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+
+.seal{display:inline-flex;align-items:center;justify-content:center;margin-top:16px;width:50px;height:50px;
+  border:2px solid var(--cinnabar);border-radius:4px;color:var(--cinnabar);font-family:"Noto Serif KR";
+  font-weight:700;font-size:11px;line-height:1.15;transform:rotate(-3deg)}
+
+/* 궁성 지도 + 전각 상세 */
+.map-cap{font-size:12px;color:var(--ink-3);letter-spacing:.16em;margin:6px 0 8px}
+.map-cap b{font-family:"Nanum Brush Script";font-size:22px;color:var(--cinnabar);font-weight:400;vertical-align:-2px}
+.map{position:relative;aspect-ratio:1/1;border:2px solid var(--line);border-radius:3px;overflow:hidden;background:var(--paper-3);max-width:560px;margin:0 auto}
+.map>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer;font-family:"Noto Serif KR";font-weight:700;
+  font-size:12px;letter-spacing:.03em;color:#2b241d;background:rgba(233,220,190,.6);padding:3px 8px;border-radius:3px;
+  white-space:nowrap;border:1px solid transparent;transition:.18s;backdrop-filter:blur(1px)}
+.marker:hover,.marker:focus,.marker.sel{background:var(--cinnabar);color:#f3ead4;box-shadow:0 3px 10px rgba(165,51,42,.4);outline:none;transform:translate(-50%,-50%) scale(1.08)}
+.marker.gold:hover,.marker.gold:focus,.marker.gold.sel{background:var(--gold)}
+
+.detail{margin:16px auto 0;max-width:560px;border:1.5px solid var(--line);border-radius:4px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(226,211,175,.55),rgba(216,198,158,.45));box-shadow:0 4px 16px rgba(43,36,29,.14)}
+.detail .slot{aspect-ratio:16/10;position:relative;background:repeating-linear-gradient(45deg,rgba(43,36,29,.03) 0 10px,transparent 10px 20px),var(--paper-3);
+  border-bottom:1.5px solid var(--sel,var(--line));display:flex;align-items:center;justify-content:center}
+.detail .slot::before{content:"";position:absolute;inset:7px;border:1px dashed var(--line-soft)}
+.detail .slot .ico{font-family:"Nanum Brush Script";font-size:46px;color:var(--sel,var(--gold));position:relative}
+.detail .slot .lb{position:absolute;bottom:10px;font-size:10px;letter-spacing:.24em;color:var(--ink-3)}
+.detail .slot>img{width:100%;height:100%;object-fit:cover}
+.detail .d-body{padding:14px 18px 16px}
+.detail .d-body h3{font-family:"Noto Serif KR";font-weight:700;font-size:20px;display:flex;align-items:baseline;gap:9px;justify-content:center}
+.detail .d-body h3 .han{font-family:"Gowun Batang";font-weight:400;font-size:13px;color:var(--cinnabar);letter-spacing:.14em}
+.detail .d-body p{font-size:14.5px;color:var(--ink-2);line-height:1.85;margin-top:6px}
+.detail .resident{display:flex;align-items:center;gap:14px;justify-content:center;padding:14px 16px;border-top:1px solid var(--line-soft);background:rgba(216,198,158,.3)}
+.detail .resident .mini{position:relative;width:48px;height:60px;border-radius:3px;border:1.5px solid var(--sel,var(--line));
+  background:repeating-linear-gradient(45deg,rgba(43,36,29,.04) 0 8px,transparent 8px 16px),var(--paper-3);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.detail .resident .mini .ico{font-family:"Nanum Brush Script";font-size:24px;color:var(--sel,var(--gold))}
+.detail .resident .mini .mlb{position:absolute;bottom:3px;font-size:8px;letter-spacing:.1em;color:var(--ink-3)}
+.detail .resident .rtx{text-align:left}
+.detail .resident .rl{font-size:10px;color:var(--gold);letter-spacing:.18em}
+.detail .resident .rn{font-family:"Noto Serif KR";font-weight:700;font-size:17px;margin-top:2px}
+
+/* 세력 사방위 + 문장 */
+.war{position:relative;margin:6px auto;max-width:560px}
+.war-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.force-cell{position:relative;border:1.5px solid var(--line);border-radius:3px;padding:20px 14px 16px;min-height:150px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(226,211,175,.6),rgba(216,198,158,.5))}
+.force-cell .glyph{position:absolute;right:-8px;bottom:-18px;font-family:"Nanum Brush Script";font-size:96px;line-height:1;opacity:.16;color:var(--fc)}
+.force-cell .badge{width:44px;height:44px;margin:0 auto 8px;border:2px solid var(--fc);border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:"Noto Serif KR";font-weight:900;font-size:22px;color:var(--fc)}
+.force-cell h3{font-family:"Noto Serif KR";font-weight:700;font-size:15px;margin-bottom:6px}
+.force-cell p{font-size:12.5px;color:var(--ink-2);line-height:1.7;position:relative}
+.force-cell.nw{--fc:var(--cinnabar);border-top-color:var(--cinnabar)}
+.force-cell.ne{--fc:var(--gold);border-top-color:var(--gold)}
+.force-cell.sw{--fc:#3a4a6b;border-bottom-color:#3a4a6b}
+.force-cell.se{--fc:#4a7a6a;border-bottom-color:#4a7a6a}
+.throne{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;width:62px;height:62px;border-radius:50%;
+  background:var(--paper);border:2px solid var(--cinnabar);display:flex;align-items:center;justify-content:center;flex-direction:column;
+  box-shadow:0 4px 16px rgba(43,36,29,.28)}
+.throne .c{font-family:"Noto Serif KR";font-weight:900;font-size:24px;color:var(--cinnabar);line-height:1}
+.throne .s{font-size:8px;letter-spacing:.08em;color:var(--ink-2)}
+
+/* 인물 */
+.subtabs{display:flex;gap:10px;justify-content:center;margin:4px auto 18px;max-width:380px}
+.subtab{flex:1;font-family:"Noto Serif KR";font-weight:500;font-size:14px;letter-spacing:.14em;padding:9px 0;
+  border:1.5px solid var(--line);border-radius:3px;background:var(--paper-2);color:var(--ink-2);cursor:pointer;transition:.2s}
+.subtab.active{background:var(--cinnabar);color:#f3ead4;border-color:var(--cinnabar-d)}
+.subpanel{display:none}.subpanel.active{display:block}
+.people{display:grid;grid-template-columns:1fr;gap:18px}
+.pcard{border:1.5px solid var(--line);border-top:4px solid var(--sig);border-radius:4px;overflow:hidden;text-align:left;
+  background:#faf6ec;box-shadow:0 4px 14px rgba(43,36,29,.14)}
+.pcard .slot{aspect-ratio:16/9;position:relative;background:repeating-linear-gradient(45deg,rgba(43,36,29,.03) 0 10px,transparent 10px 20px),var(--paper-3);
+  border-bottom:1.5px solid var(--sig);display:flex;align-items:center;justify-content:center}
+.pcard .slot::before{content:"";position:absolute;inset:7px;border:1px dashed var(--line-soft)}
+.pcard .slot .ico{font-family:"Nanum Brush Script";font-size:44px;color:var(--sig)}
+.pcard .slot .lb{position:absolute;bottom:9px;font-size:10px;letter-spacing:.24em;color:var(--ink-3)}
+.pcard .pb{padding:15px 18px 18px}
+.pcard .nm{font-family:"Noto Serif KR";font-weight:700;font-size:21px}
+.pcard .meta{font-size:11.5px;color:var(--gold);letter-spacing:.12em;margin-top:4px}
+.pcard .ps{font-size:14.5px;color:var(--ink);line-height:1.95;margin-top:11px}
+.pcard .ro{font-size:13px;color:var(--ink-2);line-height:1.75;margin-top:9px;padding-top:9px;border-top:1px solid var(--line-soft)}
+.pcard .ro b{color:var(--ink);font-weight:700}
+.pcard .ps .hl{color:var(--sig);font-weight:700;border-bottom:2px solid var(--sig);padding-bottom:.5px}
+
+/* 용어 */
+.terms{display:grid;grid-template-columns:1fr;gap:0;max-width:560px;margin:0 auto;text-align:left}
+.term{padding:14px 4px;border-bottom:1px solid var(--line-soft)}
+.term:last-child{border-bottom:none}
+.term h3{font-family:"Noto Serif KR";font-weight:700;font-size:16px;display:flex;align-items:baseline;gap:9px}
+.term h3 .han{font-family:"Nanum Brush Script";font-size:24px;color:var(--cinnabar);font-weight:400}
+.term p{font-size:13.5px;color:var(--ink-2);line-height:1.8;margin-top:3px}
+
+.foot{color:var(--ink-3);font-size:11px;letter-spacing:.24em;padding:32px 0 8px;opacity:.7}
+
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;
+  background:linear-gradient(180deg,rgba(226,211,175,.9),rgba(216,198,158,.98));border-top:1.5px solid var(--line);
+  backdrop-filter:blur(6px);padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
+.tab{flex:1;background:none;border:none;cursor:pointer;color:var(--ink-3);padding:5px 0;display:flex;flex-direction:column;
+  align-items:center;gap:2px;font-family:inherit;transition:.2s}
+.tab .han{font-family:"Nanum Brush Script",cursive;font-size:25px;line-height:.9}
+.tab .kor{font-size:9px;letter-spacing:.12em}
+.tab.active{color:var(--cinnabar)}
+
+@media (min-width:768px){
+  body{padding-bottom:0}
+  main{max-width:860px;padding:0 34px}
+  .people{grid-template-columns:1fr 1fr}
+  .tabbar{position:sticky;top:0;bottom:auto;border-top:none;border-bottom:1.5px solid var(--line);
+    max-width:860px;margin:0 auto;padding:0;background:linear-gradient(180deg,rgba(233,220,190,.97),rgba(233,220,190,.85))}
+  .tab{flex-direction:row;gap:8px;padding:14px 0}.tab .han{font-size:21px}.tab .kor{font-size:11px}
+}
+</style></head>
+<body>
+<div class="paper-bg"></div>
+<audio id="bgm" loop autoplay preload="auto" src="assets/bgm.mp3"></audio>
+<header class="topbar"><div class="mark">天溟<small>천명제국</small></div>
+<button class="bgm-btn" id="bgmBtn" aria-label="배경음악"><span>&#9834;</span></button></header>
+<main>
+
+<!-- 天 -->
+<section class="panel active" id="p-cheon">
+  <div style="padding-top:26px"><div class="writeon brush-title">天溟帝國</div></div>
+  <div class="dosim"><img src="assets/dosim.jpg" alt="천명 도성"><span class="cap">天溟 都城</span></div>
+  <div class="scroll-text">
+    <span class="writeon line big">북방의 오래된 제국.</span>
+    <span class="writeon line">중앙 내해와 신목을 품었다.</span>
+    <span class="writeon line">선황이 스러지고, 젊은 황제가 섰다.</span>
+    <span class="writeon line">정통성은 얕고, 군권은 설익었다.</span>
+    <span class="writeon line">조정도 상단도 군벌도 외세도,</span>
+    <span class="writeon line"><span class="em">이 옥좌를 노린다.</span></span>
+    <span class="writeon line">여덟 후궁은 단 하나의 총애를 다툰다.</span>
+  </div>
+  <div class="foot">天溟三年 · 세계관 총람</div>
+</section>
+
+<!-- 勢 -->
+<section class="panel" id="p-se">
+  <div class="sec-head"><span class="writeon han">勢</span><h2>세 력</h2></div>
+  <div class="rule"></div>
+  <div class="scroll-text"><span class="writeon line">옥좌를 가운데 두고,</span><span class="writeon line">네 세력이 사방에서 조여든다.</span></div>
+  <div class="war">
+    <div class="war-grid">
+      <div class="force-cell nw"><div class="badge">門</div><h3>문벌 사대부</h3><p>법도와 예법으로 황권을 견제하는 귀족.</p><span class="glyph">印</span></div>
+      <div class="force-cell ne"><div class="badge">商</div><h3>대상단 재벌</h3><p>국고와 밀무역을 쥔 대륙 최대 상단.</p><span class="glyph">錢</span></div>
+      <div class="force-cell sw"><div class="badge">軍</div><h3>군벌 무관</h3><p>북서 변경을 지키는 군사 세력.</p><span class="glyph">劍</span></div>
+      <div class="force-cell se"><div class="badge">外</div><h3>외세 사절</h3><p>화친과 볼모로 궁에 든 이민족.</p><span class="glyph">旗</span></div>
+    </div>
+    <div class="throne"><span class="c">帝</span><span class="s">玉座</span></div>
+  </div>
+  <div class="foot">四 大 勢 力</div>
+</section>
+
+<!-- 宮 -->
+<section class="panel" id="p-gung">
+  <div class="sec-head"><span class="writeon han">宮</span><h2>전 각</h2></div>
+  <div class="rule"></div>
+  <div class="map-cap"><b>宮城圖</b> 전각을 누르면 아래에 펼쳐집니다</div>
+  <div class="map" id="map"><img src="assets/map.jpg" alt="궁성 지도">
+    <button class="marker gold" data-p="건륭전" style="left:50%;top:12%">건륭전</button>
+    <button class="marker" data-p="금란각" style="left:24%;top:31%">금란각</button>
+    <button class="marker" data-p="묵검전" style="left:77%;top:31%">묵검전</button>
+    <button class="marker" data-p="화월루" style="left:33%;top:47%">화월루</button>
+    <button class="marker" data-p="청운루" style="left:67%;top:47%">청운루</button>
+    <button class="marker" data-p="묵향전" style="left:18%;top:63%">묵향전</button>
+    <button class="marker" data-p="백약각" style="left:83%;top:63%">백약각</button>
+    <button class="marker" data-p="영천궁" style="left:37%;top:74%">영천궁</button>
+    <button class="marker" data-p="무령전" style="left:63%;top:73%">무령전</button>
+    <button class="marker gold" data-p="영빈관" style="left:14%;top:16%">영빈관</button>
+  </div>
+  <div class="detail" id="detail"></div>
+  <div class="foot">八 殿</div>
+</section>
+
+<!-- 人 -->
+<section class="panel" id="p-in">
+  <div class="sec-head"><span class="writeon han">人</span><h2>인 물</h2></div>
+  <div class="rule"></div>
+  <div class="subtabs"><div class="subtab active" data-sub="s-hu">후궁 八</div><div class="subtab" data-sub="s-sin">신하 二</div></div>
+  <div class="subpanel active" id="s-hu"><div class="people"><div class="pcard" style="--sig:#4a7a6a"><div class="slot"><span class="ico">墨</span><span class="lb">초상</span></div><div class="pb"><span class="nm">비설</span><div class="meta">묵향전 · 186cm</div><div class="ps">겉으로는 나긋한 경어를 쓰지만, 그 아래엔 황제를 바른 군주로 <span class='hl'>길들이려는 지배욕</span>이 있다. 모든 대화를 <span class='hl'>시험처럼</span> 던지고, 잘 따라오면 드물게 칭찬을 흘려 상대를 움직인다. 문벌 질서를 세우려는 야심이 그를 움직이는 동력이다.</div><div class="ro"><b>특기</b> 황궁 정치의 기획, 법률 해석, 가문 복권 공작.</div></div></div>
+<div class="pcard" style="--sig:#a4342b"><div class="slot"><span class="ico">金</span><span class="lb">초상</span></div><div class="pb"><span class="nm">홍월</span><div class="meta">금란각 · 184cm</div><div class="ps"><span class='hl'>돈으로 못 살 것은 없다</span>고 믿는다. 값비싼 선물과 물량으로 상대를 사들이려 들고, <span class='hl'>넘어오지 않을수록 승부욕이 타오른다</span>. 밑바닥에서 대륙 최대 상단을 일군 자존심이 있어, 자신을 거절하는 상대를 유일한 예외로 여긴다.</div><div class="ro"><b>특기</b> 대상단 장악, 황실 자금줄과 밀무역.</div></div></div>
+<div class="pcard" style="--sig:#3a3632"><div class="slot"><span class="ico">武</span><span class="lb">초상</span></div><div class="pb"><span class="nm">무진</span><div class="meta">무령전 · 190cm</div><div class="ps">거대한 체구의 과묵한 무인. 위기와 위험을 감지하는 감각은 천부적이나 <span class='hl'>사람의 마음이나 눈치에는 서툴러</span>, 삐진 이에게도 실무적인 해결책만 내놓아 종종 엇나간다. 한번 지키기로 한 것은 목숨을 걸며, 명령과 안전이 충돌하면 <span class='hl'>명령을 어기고 몸으로 막는다</span>.</div><div class="ro"><b>특기</b> 황제 호위, 군벌 전술, 암습 대응.</div></div></div>
+<div class="pcard" style="--sig:#8b8598"><div class="slot"><span class="ico">藥</span><span class="lb">초상</span></div><div class="pb"><span class="nm">시연</span><div class="meta">백약각 · 183cm</div><div class="ps">굵은 골격에 인상이 사나운 황실 의원. 존대는 꼬박 하지만 독설과 잔소리가 끊이지 않고, 환자가 제 몸을 함부로 다루는 꼴을 극도로 못 참는다. <span class='hl'>입은 가장 독한데 손은 가장 다정</span>해 밤새 간호하고도 퉁명스럽다. 정작 제 몸 관리는 뒷전이다.</div><div class="ro"><b>특기</b> 황실 의술, 약 조제, 독과 향의 감별.</div></div></div>
+<div class="pcard" style="--sig:#7a4b7a"><div class="slot"><span class="ico">花</span><span class="lb">초상</span></div><div class="pb"><span class="nm">유화</span><div class="meta">화월루 · 175cm</div><div class="ps"><span class='hl'>천하제일미</span>로 소문난 예인. 애교와 편안함을 무기 삼아 곁을 파고들고, 잔망스러운 어리광 뒤에는 <span class='hl'>손익을 재는 계산</span>이 숨어 있다. 버림받지 않을 만큼 쓸모를 증명하려는 불안이 그 애교의 뿌리다.</div><div class="ro"><b>특기</b> 가무·현악, 침소 밀담 도청, 기밀 거래.</div></div></div>
+<div class="pcard" style="--sig:#d4a55a"><div class="slot"><span class="ico">陽</span><span class="lb">초상</span></div><div class="pb"><span class="nm">해온</span><div class="meta">영천궁 · 174cm</div><div class="ps">밝고 예의 바른 직진형. 솔직함이 곧 선이라 믿어, 남이 감추고 싶은 진실까지 <span class='hl'>무심코 말해 상처를 주기도</span> 한다. 질투가 차오르면 차가워지는 대신 오히려 지나치게 밝고 깍듯해져, 찻잔을 넘치게 채우는 식으로 티가 샌다.</div><div class="ro"><b>특기</b> 다도·화훼, 위안. 정치에는 서툴다.</div></div></div>
+<div class="pcard" style="--sig:#6a92b5"><div class="slot"><span class="ico">靑</span><span class="lb">초상</span></div><div class="pb"><span class="nm">청하</span><div class="meta">청운루 · 183cm</div><div class="ps">정통성 밖으로 밀려난 방계 황족. 공석에서는 <span class='hl'>패배와 질투까지 우아하게 감추는 품위</span>를 지키지만, 둘만 있거나 질투가 나면 <span class='hl'>은근히 유치해진다</span>. 경쟁 후궁 이야기에 찻물을 일부러 맵게 우리면서도, 질투가 아니라며 끝까지 부정한다.</div><div class="ro"><b>특기</b> 여론 조작, 궁중 암투 선동.</div></div></div>
+<div class="pcard" style="--sig:#6b7078"><div class="slot"><span class="ico">劍</span><span class="lb">초상</span></div><div class="pb"><span class="nm">귀염</span><div class="meta">묵검전 · 181cm</div><div class="ps">험상궂은 얼굴에 <span class='hl'>한쪽 눈은 흉터로 볼 수 없다</span>. 오랜 볼모 생활로 남의 불편을 귀신같이 알아채지만 무뚝뚝해 말 대신 행동이 먼저 나간다. <span class='hl'>동정이나 시혜로 받아들여지는 것은 거부</span>하며, 무인의 자존심과 가문을 건드리면 황제 앞에서도 고집을 꺾지 않는다.</div><div class="ro"><b>특기</b> 완력·경호, 장작·수선 같은 손일.</div></div></div>
+</div></div>
+  <div class="subpanel" id="s-sin"><div class="people"><div class="pcard" style="--sig:#3a4a6b"><div class="slot"><span class="ico">吏</span><span class="lb">초상</span></div><div class="pb"><span class="nm">리하오</span><div class="meta">건륭전 · 176cm</div><div class="ps">만성 피로에 절어 눈 밑 그늘이 짙은 실무형 시종. <b>오른쪽 다리를 절어</b> 걸음이 느리고 마룻바닥을 삐걱인다. 겉으로는 굽신대지만 <span class='hl'>틈만 나면 투덜대고</span>, 실리 계산이 철저해 확실한 보상 앞에서는 프로처럼 움직인다. 오른발 사연은 물으면 입을 다문다.</div><div class="ro"><b>특기</b> 내밀 서신 전달, 독극물 판별, 지름길 기동.</div></div></div>
+<div class="pcard" style="--sig:#b5683c"><div class="slot"><span class="ico">賓</span><span class="lb">초상</span></div><div class="pb"><span class="nm">루안</span><div class="meta">영빈관 · 187cm</div><div class="ps">화친 볼모로 끌려온 이방의 왕족. <span class='hl'>구릿빛 적발과 청동빛 피부</span>의 이국적인 외모를 지녔다. 이방 억양의 가시 돋친 존대로 <span class='hl'>사사건건 비꼬지만 뒤끝은 없이 호탕</span>하다. 꺾인 자존심을 오기로 버티며, 황제를 얕보면서도 저도 모르게 흔들리는 자신에게 분노한다.</div><div class="ro"><b>특기</b> 이방 궁술·기마, 모국 정보, 외교 카드.</div></div></div>
+</div></div>
+  <div class="foot">後宮 八 · 臣僚 二</div>
+</section>
+
+</main>
+<nav class="tabbar" id="tabbar">
+  <button class="tab active" data-target="p-cheon"><span class="han">天</span><span class="kor">천명</span></button>
+  <button class="tab" data-target="p-se"><span class="han">勢</span><span class="kor">세력</span></button>
+  <button class="tab" data-target="p-gung"><span class="han">宮</span><span class="kor">전각</span></button>
+  <button class="tab" data-target="p-in"><span class="han">人</span><span class="kor">인물</span></button>
+</nav>
+<script>
+// 전각 데이터
+const PAL={
+"건륭전":["乾隆殿","乾","황제가 정무를 보고 대신과 외교관을 접견하는 정전. 낮이면 온갖 정치적 압박이 쏟아지는 공개 전장이 된다.","황제","#9a7b32"],
+"금란각":["金蘭閣","金","사치품과 금은보화로 가득한 화려한 전각. 대상단의 부가 그대로 드러나는 곳이다.","홍월","#a4342b"],
+"묵검전":["墨劍殿","劍","대숲에 둘러싸인 외곽의 처소. 인적이 드물고 조용하다.","귀염","#6b7078"],
+"화월루":["花月樓","月","물 위에 지은 수상 연회장. 가무와 술자리, 은밀한 밀담이 오간다.","유화","#7a4b7a"],
+"청운루":["靑雲樓","雲","연꽃이 가득한 정원. 겉으로는 더없이 평화로워 보인다.","청하","#6a92b5"],
+"묵향전":["墨香殿","墨","서책과 문서가 층층이 쌓인 서고. 지략과 계략이 자라는 공간이다.","비설","#4a7a6a"],
+"백약각":["百藥閣","藥","약초를 기르는 온실과 조제실을 갖춘 전각. 약과 독이 함께 자란다.","시연","#8b8598"],
+"영천궁":["靈泉宮","泉","따뜻한 온천이 솟는 화훼 정원. 궁에서 가장 온화한 공간이다.","해온","#d4a55a"],
+"무령전":["武靈殿","武","연무장과 무기고를 갖춘 전각. 병장기 손질하는 소리가 끊이지 않는다.","무진","#3a3632"],
+"영빈관":["迎賓館","賓","궁 안의 별관. 화친으로 온 외세 사절과 볼모가 감시 아래 머문다.","루안","#b5683c"]
+};
+function showDetail(name){
+  const d=PAL[name];if(!d)return;
+  const [han,ico,desc,who,sig]=d;
+  const resident = who==="황제"
+    ? `<div class="resident"><div class="mini"><span class="ico">${ico}</span></div><div class="rtx"><div class="rl">주인</div><div class="rn">황제</div></div></div>`
+    : `<div class="resident"><div class="mini"><span class="ico">${ico}</span><span class="mlb">초상</span></div><div class="rtx"><div class="rl">이곳의 주인</div><div class="rn">${who}</div></div></div>`;
+  document.getElementById('detail').innerHTML=
+    `<div class="slot"><span class="ico">${ico}</span><span class="lb">전각 이미지</span></div>`+
+    `<div class="d-body"><h3>${name} <span class="han">${han}</span></h3><p>${desc}</p></div>`+
+    resident;
+  document.getElementById('detail').style.setProperty('--sel',sig);
+  document.querySelectorAll('.marker').forEach(m=>m.classList.toggle('sel',m.dataset.p===name));
+}
+// write-on 준비
+function prep(panel){
+  if(panel.dataset.prepped)return;
+  panel.querySelectorAll('.writeon').forEach(el=>{
+    const nodes=[...el.childNodes];el.innerHTML='';
+    nodes.forEach(node=>{
+      if(node.nodeType===3){ // 텍스트
+        [...node.textContent].forEach(ch=>{const s=document.createElement('span');s.className='wc';s.textContent=ch;el.appendChild(s);});
+      }else{ // 요소(예: em, br)
+        if(node.tagName==='BR'){el.appendChild(document.createElement('br'));return;}
+        const wrap=node.cloneNode(false);
+        [...node.textContent].forEach(ch=>{const s=document.createElement('span');s.className='wc';s.textContent=ch;wrap.appendChild(s);});
+        el.appendChild(wrap);
+      }
+    });
+  });
+  panel.dataset.prepped=1;
+}
+function play(panel){
+  let d=0;
+  panel.querySelectorAll('.wc').forEach(s=>{s.style.transitionDelay=d.toFixed(3)+'s';d+=0.028;
+    if(s.textContent===' ')d+=0.01;});
+  // 행 사이 쉼
+  panel.querySelectorAll('.writeon').forEach(()=>{});
+  panel.classList.remove('playing');void panel.offsetWidth;panel.classList.add('playing');
+}
+function activate(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.target===id));
+  const p=document.getElementById(id);prep(p);play(p);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('tabbar').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)activate(b.dataset.target)});
+document.getElementById('map').addEventListener('click',e=>{const m=e.target.closest('.marker');if(m)showDetail(m.dataset.p)});
+document.querySelector('.subtabs').addEventListener('click',e=>{const s=e.target.closest('.subtab');if(!s)return;
+  document.querySelectorAll('.subtab').forEach(x=>x.classList.toggle('active',x===s));
+  document.querySelectorAll('.subpanel').forEach(p=>p.classList.toggle('active',p.id===s.dataset.sub));});
+const bgm=document.getElementById('bgm'),btn=document.getElementById('bgmBtn');
+function bgmPlay(){bgm.play().then(()=>btn.classList.add('playing')).catch(()=>{});}
+btn.addEventListener('click',e=>{e.stopPropagation();if(bgm.paused)bgmPlay();else{bgm.pause();btn.classList.remove('playing');}});
+// 자동재생: 진입 시 시도 → 막히면 첫 상호작용에 재생
+bgmPlay();
+function unlock(){if(bgm.paused)bgmPlay();if(!bgm.paused){document.removeEventListener('pointerdown',unlock);document.removeEventListener('keydown',unlock);document.removeEventListener('touchstart',unlock);}}
+document.addEventListener('pointerdown',unlock);
+document.addEventListener('keydown',unlock);
+document.addEventListener('touchstart',unlock);
+// 초기
+showDetail("건륭전");
+const first=document.getElementById('p-cheon');prep(first);play(first);
+</script>
+</body></html>
